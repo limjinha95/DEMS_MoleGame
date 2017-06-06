@@ -35,7 +35,7 @@
             android:textSize="23dp"/>
 
         <EditText
-            android:id="@+id/edit_id"
+            android:id="@+id/edittext"
             android:layout_width="120dp"
             android:layout_height="match_parent"
             android:textSize="20dp"/>
