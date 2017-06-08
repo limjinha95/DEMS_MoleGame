@@ -1,4 +1,4 @@
-package com.example.segmentjni;
+package com.example.molegamejni;
 
 public class SegmentJNI {
 	static {

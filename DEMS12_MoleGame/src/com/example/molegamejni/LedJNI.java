@@ -1,4 +1,4 @@
-package com.example.ledjni;
+package com.example.molegamejni;
 
 public class LedJNI {
 	static {

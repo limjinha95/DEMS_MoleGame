@@ -1,4 +1,4 @@
-package com.example.piezojni;
+package com.example.molegamejni;
 
 public class PiezoJNI {
 	static {

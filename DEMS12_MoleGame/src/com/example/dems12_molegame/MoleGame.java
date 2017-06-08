@@ -1,11 +1,11 @@
 package com.example.dems12_molegame;
 
 import com.example.dems12_molegame.R;
-import com.example.textlcdjni.TextlcdJNI;
-import com.example.piezojni.PiezoJNI;
-import com.example.fullcolorledjni.FullcolorledJNI;
-import com.example.ledjni.LedJNI;
-import com.example.segmentjni.SegmentJNI;
+import com.example.molegamejni.FullcolorledJNI;
+import com.example.molegamejni.LedJNI;
+import com.example.molegamejni.PiezoJNI;
+import com.example.molegamejni.SegmentJNI;
+import com.example.molegamejni.TextlcdJNI;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -19,23 +19,42 @@ public class MoleGame extends Activity{
 	
 	private TextlcdJNI textlcdJNI = new TextlcdJNI();
 	private PiezoJNI piezoJNI = new PiezoJNI();
+	private FullcolorledJNI fullcolorledJNI = new FullcolorledJNI();
+	private LedJNI ledJNI = new LedJNI();
+	private SegmentJNI segmentJNI = new SegmentJNI();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		final EditText edittext = (EditText)findViewById(R.id.edittext);
+		final EditText edittext = (EditText)findViewById(R.id.editname);
 		final Button startbtn = (Button)findViewById(R.id.startbtn);
 
 		startbtn.setOnClickListener(new Button.OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
-				final String str1 = edittext.getText().toString();
+				final String name = edittext.getText().toString();
+				final int score = 0;
+				
+				//게임로직
+				// 게임시작하면 lcd창 지우고 이름 출력, 피에조 시작 알림,segment 0으로 초기화
 				textlcdJNI.clear();
-				textlcdJNI.print1Line(str1);
-				piezoJNI.open();
+				textlcdJNI.print1Line(name);	
+				piezoJNI.open();	
+				segmentJNI.open();
+				segmentJNI.print(score);
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 			}
 
 		});

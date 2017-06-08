@@ -1,4 +1,4 @@
-package com.example.textlcdjni;
+package com.example.molegamejni;
 
 public class TextlcdJNI {
 	static {
