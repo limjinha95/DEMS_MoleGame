@@ -30,30 +30,58 @@ public class MoleGame extends Activity{
 
 		final EditText edittext = (EditText)findViewById(R.id.editname);
 		final Button startbtn = (Button)findViewById(R.id.startbtn);
+		
 
 		startbtn.setOnClickListener(new Button.OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
 				final String name = edittext.getText().toString();
-				final int score = 0;
+				int score = 0;
+				int count = 20;
+				int red, green, blue;
+				char piezoData;
+				char ledData = (char)0;
+				boolean res = true;
 				
-				//게임로직
-				// 게임시작하면 lcd창 지우고 이름 출력, 피에조 시작 알림,segment 0으로 초기화
+				//초기화
+				textlcdJNI.on();
 				textlcdJNI.clear();
-				textlcdJNI.print1Line(name);	
+				textlcdJNI.print1Line(name);
 				piezoJNI.open();	
 				segmentJNI.open();
 				segmentJNI.print(score);
 				
+				while(count != 0) {
+					
+					//게임
+					
+					if(res) {	//점수증가, 파란불
+						red = 0;
+						green = 0;
+						blue = 100;
+						score = score + 10;
+						
+						
+					}
+					else {		//엘이디, 빨간불,
+						red = 100;
+						green = 0;
+						blue = 0;
+						ledJNI.on(ledData);
+					}
+					
+					segmentJNI.print(score);
+					fullcolorledJNI.FLEDControl(1, red, green, blue);
+					fullcolorledJNI.FLEDControl(2, red, green, blue);
+					fullcolorledJNI.FLEDControl(3, red, green, blue);
+					fullcolorledJNI.FLEDControl(4, red, green, blue);
+				}
 				
-				
-				
-				
-				
-				
-				
-				
+				piezoJNI.write(piezoData);
+				piezoJNI.close();
+				segmentJNI.close();
+				textlcdJNI.off();
 				
 			}
 
