@@ -1,11 +1,7 @@
 package com.example.dems12_molegame;
 
-import com.example.dems12_molegame.R;
-import com.example.molegamejni.FullcolorledJNI;
-import com.example.molegamejni.LedJNI;
-import com.example.molegamejni.PiezoJNI;
-import com.example.molegamejni.SegmentJNI;
-import com.example.molegamejni.TextlcdJNI;
+import com.example.dems12_molegame.*;
+import com.example.molegamejni.MolegameJNI;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -21,100 +17,81 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-
 public class MoleGame extends Activity{
-
-	Socket clientSock = null;
-	BufferedReader in = null;
-	PrintWriter out = null; 
-
+	private Button startbtn;
+	private EditText edittext;
+	private MolegameJNI molegameJNI;
+	
 	final String serverIP= "192.168.1.9";
 	final int serverPort= 9555;
-	Boolean finished = false;
-
-	private TextlcdJNI textlcdJNI = new TextlcdJNI();
-	private PiezoJNI piezoJNI = new PiezoJNI();
-	private FullcolorledJNI fullcolorledJNI = new FullcolorledJNI();
-	private LedJNI ledJNI = new LedJNI();
-	private SegmentJNI segmentJNI = new SegmentJNI();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		final EditText edittext = (EditText)findViewById(R.id.editname);
-		final Button startbtn = (Button)findViewById(R.id.startbtn);
+		molegameJNI = new MolegameJNI();
+		initView();
 		
-		boolean EndGame = false;
-
 		startbtn.setOnClickListener(new Button.OnClickListener() {
-
 			@Override
-			public void onClick(View arg0) {
-				final String name = edittext.getText().toString();
-				int score = 0;
-				int count = 20;
-				int red, green, blue;
-				char piezoData;
-				char ledData = (char)0;
-				boolean res = true;
+			public void onClick(View v) {
+				String name = edittext.getText().toString();
+				startbtn.setText("Playing..");
+				//게임로직
+				// 게임시작하면 lcd창 지우고 이름 출력, 피에조 시작 알림,segment 0으로 초기화
+				molegameJNI.textlcdClear();
+				molegameJNI.textlcdPrint1Line(name);
+				molegameJNI.segmentPrint(Share.score);
 
-				//초기화
-				textlcdJNI.on();
-				textlcdJNI.clear();
-				textlcdJNI.print1Line(name);
-				piezoJNI.open();	
-				segmentJNI.open();
-				segmentJNI.print(score);
-
-				while(count != 0) {
-
-					//게임
-
-					if(res) {	//점수증가, 파란불
-						red = 0;
-						green = 0;
-						blue = 100;
-						score = score + 10;
-
-
-					}
-					else {		//엘이디, 빨간불,
-						red = 100;
-						green = 0;
-						blue = 0;
-						ledJNI.on(ledData);
-					}
-
-					segmentJNI.print(score);
-					fullcolorledJNI.FLEDControl(1, red, green, blue);
-					fullcolorledJNI.FLEDControl(2, red, green, blue);
-					fullcolorledJNI.FLEDControl(3, red, green, blue);
-					fullcolorledJNI.FLEDControl(4, red, green, blue);
-				}
-
-				piezoJNI.write(piezoData);
-				piezoJNI.close();
-				segmentJNI.close();
-				textlcdJNI.off();
-				
-
+				(new DisplayThread(molegameJNI, 30)).start();
 			}
-
 		});
 
+		while(true) {
+				Share.inputNum = molegameJNI.keypadRead();
+
+				switch(Share.check) {
+				case 1:
+					molegameJNI.FLEDControl(4, 100, 0, 0);
+					molegameJNI.piezoWrite((char)0x11);
+					molegameJNI.segmentPrint(++Share.score);
+					break;
+				case 0:
+					molegameJNI.FLEDControl(4, 0, 0, 100);
+					molegameJNI.piezoWrite((char)0x13);
+					
+					break;
+				}
+		}
 	}
 
+	private void initView() {
+		edittext = (EditText)findViewById(R.id.editname);
+		startbtn = (Button)findViewById(R.id.startbtn);
+	}
+	
 	@Override
 	protected void onResume() {
-		textlcdJNI.initialize();
+		molegameJNI.keypadOpen();
+		molegameJNI.piezoOpen();
+		molegameJNI.fullcolorledOpen();
+		molegameJNI.textlcdInitialize();
+		molegameJNI.segmentOpen();
+		molegameJNI.ledOpen();
+		
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
-		textlcdJNI.off();
+		molegameJNI.keypadClose();
+		molegameJNI.piezoClose();
+		molegameJNI.fullcolorledClose();
+		molegameJNI.textlcdOff();
+		molegameJNI.segmentClose();
+		molegameJNI.ledClose();
+		
 		super.onPause();
 	}
 
@@ -124,5 +101,4 @@ public class MoleGame extends Activity{
 		getMenuInflater().inflate(R.menu.mole_game, menu);
 		return true;
 	}
-
 }
