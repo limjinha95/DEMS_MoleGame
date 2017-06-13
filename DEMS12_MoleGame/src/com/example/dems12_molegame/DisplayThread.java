@@ -11,6 +11,7 @@ import android.util.Log;
 public class DisplayThread extends Thread {
 	private int gameCount;
 	private Result result;
+	private MolegameJNI molegameJNI;
 	
 	public DisplayThread(MolegameJNI molegameJNI, int gameCount) {
 		this.gameCount = gameCount;
