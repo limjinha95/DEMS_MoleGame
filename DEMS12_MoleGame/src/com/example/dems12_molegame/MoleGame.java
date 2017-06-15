@@ -9,6 +9,8 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,84 +23,124 @@ public class MoleGame extends Activity{
 	private Button startbtn;
 	private EditText edittext;
 	private MolegameJNI molegameJNI;
+	Button button[] = new Button[16];
+	char ledNum[] = {0xff, 0x7f, 0x3f, 0x1f, 0x0f, 0x07, 0x03, 0x01, 0x00};
+	DisplayThread displayThread = null;
 	
-	final String serverIP= "192.168.1.9";
-	final int serverPort= 9555;
+	Socket sock;
+	BufferedReader sock_in;
+	PrintWriter sock_out;
+	EditText input;
+	TextView output;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-
+		setContentView(R.layout.main2);
 		molegameJNI = new MolegameJNI();
 		initView();
+
+		molegameJNI.textlcdClear();
 		
-		startbtn.setOnClickListener(new Button.OnClickListener() {
+		startbtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String name = edittext.getText().toString();
-				startbtn.setText("Playing..");
-				//게임로직
-				// 게임시작하면 lcd창 지우고 이름 출력, 피에조 시작 알림,segment 0으로 초기화
-				molegameJNI.textlcdClear();
-				molegameJNI.textlcdPrint1Line(name);
-				molegameJNI.segmentPrint(Share.score);
+				if(displayThread != null) return;
 
-				(new DisplayThread(molegameJNI, 30)).start();
+				Share.init();
+				
+				displayThread = new DisplayThread(molegameJNI);
+				Share.name = edittext.getText().toString();
+				startbtn.setText("Playing..");
+
+				molegameJNI.FLEDControl(4, 100, 100, 100);
+				molegameJNI.textlcdClear();
+				molegameJNI.textlcdPrint1Line(Share.name);
+				molegameJNI.textlcdPrint2Line("Playing.. " + Share.gameCount);
+				molegameJNI.ledOn(ledNum[Share.fault]);
+
+				displayThread.start();
 			}
 		});
-
-		while(true) {
-				Share.inputNum = molegameJNI.keypadRead();
-
-				switch(Share.check) {
-				case 1:
-					molegameJNI.FLEDControl(4, 100, 0, 0);
-					molegameJNI.piezoWrite((char)0x11);
-					molegameJNI.segmentPrint(++Share.score);
-					break;
-				case 0:
-					molegameJNI.FLEDControl(4, 0, 0, 100);
-					molegameJNI.piezoWrite((char)0x13);
-					
-					break;
-				}
-		}
 	}
 
 	private void initView() {
 		edittext = (EditText)findViewById(R.id.editname);
 		startbtn = (Button)findViewById(R.id.startbtn);
+
+		int btnID[] = { R.id.button1, R.id.button2, R.id.button3, R.id.button4,
+				R.id.button5, R.id.button6, R.id.button7, R.id.button8,
+				R.id.button9, R.id.button10, R.id.button11, R.id.button12,
+				R.id.button13, R.id.button14, R.id.button15, R.id.button16 };
+		for(int i= 0; i < 16; i++) {
+			button[i] = (Button)findViewById(btnID[i]);
+		}
 	}
-	
+
 	@Override
 	protected void onResume() {
-		molegameJNI.keypadOpen();
+		//molegameJNI.keypadOpen();
 		molegameJNI.piezoOpen();
 		molegameJNI.fullcolorledOpen();
 		molegameJNI.textlcdInitialize();
 		molegameJNI.segmentOpen();
 		molegameJNI.ledOpen();
-		
+	
 		super.onResume();
+		
+		
 	}
 
 	@Override
 	protected void onPause() {
-		molegameJNI.keypadClose();
+		//molegameJNI.keypadClose();
 		molegameJNI.piezoClose();
 		molegameJNI.fullcolorledClose();
 		molegameJNI.textlcdOff();
 		molegameJNI.segmentClose();
 		molegameJNI.ledClose();
-		
+
 		super.onPause();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.mole_game, menu);
 		return true;
 	}
+
+	public void buttonPush(View v) {
+		if(Share.gameCount <= 0) return;
+		int num = Integer.parseInt(((Button)v).getText().toString());
+		Share.inputNum = num;
+
+		//if(Share.gameCount > 0) break;	//게임 종료
+		while(Share.check == 0);
+		switch(Share.check) {
+		case 1:	//맞췄을 경우
+			molegameJNI.FLEDControl(4, 0, 0, 100);
+			molegameJNI.piezoWrite((char)0x11);
+			try { Thread.sleep(300); } catch(Exception e) {}
+			molegameJNI.FLEDControl(4, 100, 100, 100);
+			molegameJNI.piezoWrite((char)0x00);
+
+			Share.check = 0;
+			break;
+		case 2:	//틀렸을 경우
+			Share.score -= 50;
+			molegameJNI.ledOn(ledNum[++Share.fault]);
+			molegameJNI.FLEDControl(4, 100, 0, 0);
+			//molegameJNI.piezoWrite((char)0x13);
+			try { Thread.sleep(300); } catch(Exception e) {}
+			molegameJNI.FLEDControl(4, 100, 100, 100);
+			//molegameJNI.piezoWrite((char)0x00);
+
+			Share.check = 0;
+			if(Share.fault == 8) Share.gameCount = -1;
+	
+			break;
+		}
+
+	}
 }
+

@@ -6,6 +6,12 @@
 #include <jni.h>
 #include "textlcd.h"
 
+#define FULL_LED1 9
+#define FULL_LED2 8
+#define FULL_LED3 7
+#define FULL_LED4 6
+#define ALL_LED 5
+
 static int dotmatrixFD;
 static int keypadFD;
 static int piezoFD;
@@ -28,7 +34,7 @@ JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_dotmatrixClose
 }
 
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_dotmatrixControl
-(JNIEnv * env, jobject obj, jstring){
+(JNIEnv * env, jobject obj, jstring str){
 	const char *pStr;
 	int len;
 
@@ -43,27 +49,6 @@ JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_dotmatrixControl
 
 /*******************************Keypad**************************************/
 
-JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_keypadOpen
-(JNIEnv * env, jobject obj){
-	keypadFD = open("/dev/fpga_keyapd12", O_RDWR);
-	assert(keypadFD != -1);
-}
-
-JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_keypadClose
-(JNIEnv * env, jobject obj){
-	close(keypadFD);
-	keypadFD = 0;
-}
-
-JNIEXPORT jint JNICALL Java_com_example_molegamejni_MolegameJNI_keypadRead
-(JNIEnv * env, jobject obj){
-	char buf[3];
-	int num;
-
-	read(keypadFD, &buf, 3);
-	num = atoi(buf);
-	return num;
-}
 /*----------------------------------------------------------------------------*/
 
 
@@ -83,11 +68,7 @@ JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_piezoClose
 
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_piezoWrite
 (JNIEnv * env, jobject obj, jchar data){
-	char nullValue = 0x00;
-
 	write(piezoFD, &data, 1);
-	usleep(500000);
-	write(piezoFD, &nullValue, 1);
 }
 /*----------------------------------------------------------------------------*/
 
@@ -101,19 +82,14 @@ JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_fullcolorledOpen
 
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_FLEDControl
 (JNIEnv * env, jobject obj, jint led_num, jint val1, jint val2, jint val3){
-	int ret;
 	char buf[3];
-	int pos[5] = {9, 8, 7, 6, 5};
+	int pos[5] = {FULL_LED1, FULL_LED2, FULL_LED3, FULL_LED4, ALL_LED};
 
-	ret = (int)led_num;
-
-	ioctl(fullcolorledFD, num[ret]);
-
+	ioctl(fullcolorledFD, pos[(int)led_num]);
 	buf[0] = val1;
 	buf[1] = val2;
 	buf[2] = val3;
-
-	write(fd,buf,3);
+	write(fullcolorledFD, buf, 3);
 }
 
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_fullcolorledClose
@@ -128,7 +104,7 @@ JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_fullcolorledClos
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_textlcdOn
 (JNIEnv * env, jobject obj){
 	textlcdFD = open("/dev/fpga_textlcd", O_WRONLY);
-	assert(textlcdFD != 0);
+	assert(textlcdFD != -1);
 	ioctl(textlcdFD, TEXTLCD_ON);
 }
 
@@ -148,7 +124,7 @@ JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_textlcdOff
 
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_textlcdClear
 (JNIEnv * env, jobject obj){
-	ioctl(fd, TEXTLCD_CLEAR);
+	ioctl(textlcdFD, TEXTLCD_CLEAR);
 }
 
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_textlcdPrint1Line
