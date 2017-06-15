@@ -9,10 +9,7 @@ public class MolegameJNI {
 	public native void dotmatrixClose();
 	public native void dotmatrixControl(String str);
 	
-	public native void keypadOpen();
-	public native void keypadClose();
-	public native int keypadRead();
-	
+
 	public native void piezoOpen();
 	public native void piezoClose();
 	public native void piezoWrite(char data);

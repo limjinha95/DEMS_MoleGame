@@ -65,5 +65,4 @@
         android:gravity="center_horizontal"
         android:text="Click start button !"
         android:textSize="20dp" />
-
 </LinearLayout>
