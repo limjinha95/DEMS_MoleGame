@@ -10,36 +10,22 @@ import java.util.Random;
 import com.example.molegamejni.MolegameJNI;
 
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+
 
 public class DisplayThread extends Thread {
 	private final static int DOT_TIME = 300;
 	private Result result;
 	private MolegameJNI molegameJNI;
 
+	final String serverIP = "172.20.10.2";
+	final int serverPort = 12000;
+	
 	public DisplayThread(MolegameJNI molegameJNI) {
 		this.molegameJNI = molegameJNI;
 	}
 
 	@Override
 	public void run() {
-
-		Socket sock;
-		BufferedReader sock_in;
-		PrintWriter sock_out;
-		EditText input;
-		Button button;
-		TextView output;
-		
-		String data;
-		
-		final String serverIP = "172.20.10.2";
-		final int serverPort = 12000;
-
 		int i, j;
 		molegameJNI.dotmatrixOpen();
 
@@ -70,20 +56,19 @@ public class DisplayThread extends Thread {
 		}
 		else if(Share.gameCount == -1)
 			molegameJNI.textlcdPrint2Line("Game Over");
-
+		
 		molegameJNI.dotmatrixClose();
 		
 		try {
-			sock = new Socket(serverIP, serverPort);
-			sock_out = new PrintWriter(sock.getOutputStream(), true);
-			sock_in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			data = Share.name +","+ Share.score;
-			sock_out.println(data);
-			
+			Socket sock = new Socket(serverIP, serverPort);
+			PrintWriter sock_out = new PrintWriter(sock.getOutputStream(), true);
+			BufferedReader sock_in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			sock_out.println(Share.name +","+ Share.score);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 	}
 
 	private Result makeMole() {

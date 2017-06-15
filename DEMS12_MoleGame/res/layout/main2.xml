@@ -6,17 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".MoleGame">
+    tools:context=".ButtonActivity">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/startbtn"
-       	android:text="Start"/>
-    <EditText
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
- 		android:id="@+id/editname"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

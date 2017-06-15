@@ -78,6 +78,7 @@ class dbconn{
 			PreparedStatement st = (PreparedStatement)con.prepareStatement("select * from ranking order by score desc");
 			ResultSet set = st.executeQuery();
 
+			System.out.printf("---------------------------------\n");
 			System.out.printf("|  RANK  |  USERNAME  |  SCORE  |\n");
 			System.out.printf("---------------------------------\n");
 
