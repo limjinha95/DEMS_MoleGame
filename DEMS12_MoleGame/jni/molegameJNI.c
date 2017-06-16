@@ -47,11 +47,6 @@ JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_dotmatrixControl
 /*----------------------------------------------------------------------------*/
 
 
-/*******************************Keypad**************************************/
-
-/*----------------------------------------------------------------------------*/
-
-
 /******************************Piezo***************************************/
 
 JNIEXPORT void JNICALL Java_com_example_molegamejni_MolegameJNI_piezoOpen

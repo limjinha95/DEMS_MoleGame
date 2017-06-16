@@ -17,23 +17,22 @@ public class ButtonActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		String tmp;
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main2);
 		molegameJNI = new MolegameJNI();
 		initView();
-
-		molegameJNI.textlcdClear();
-
-		displayThread = new DisplayThread(molegameJNI);
-
+		tmp = Share.name;
 		Share.init();
-
+		Share.name = tmp;
+		
 		molegameJNI.FLEDControl(4, 100, 100, 100);
 		molegameJNI.textlcdClear();
 		molegameJNI.textlcdPrint1Line(Share.name);
 		molegameJNI.textlcdPrint2Line("Playing.. " + Share.gameCount);
 		molegameJNI.ledOn(ledNum[Share.fault]);
-
+		
+		displayThread = new DisplayThread(molegameJNI);
 		displayThread.start();
 	}
 
@@ -44,6 +43,7 @@ public class ButtonActivity extends Activity {
 				R.id.button13, R.id.button14, R.id.button15, R.id.button16 };
 		for(int i= 0; i < 16; i++) {
 			button[i] = (Button)findViewById(btnID[i]);
+			button[i].setTag(i+1);
 		}
 	}
 
@@ -81,7 +81,7 @@ public class ButtonActivity extends Activity {
 
 	public void buttonPush(View v) {
 		if(Share.gameCount <= 0) return;
-		int num = Integer.parseInt(((Button)v).getText().toString());
+		int num = (Integer)((Button)v).getTag();
 		Share.inputNum = num;
 
 		//if(Share.gameCount > 0) break;	//게임 종료
@@ -100,10 +100,10 @@ public class ButtonActivity extends Activity {
 			Share.score -= 50;
 			molegameJNI.ledOn(ledNum[++Share.fault]);
 			molegameJNI.FLEDControl(4, 100, 0, 0);
-			//molegameJNI.piezoWrite((char)0x13);
+			molegameJNI.piezoWrite((char)0x13);
 			try { Thread.sleep(300); } catch(Exception e) {}
 			molegameJNI.FLEDControl(4, 100, 100, 100);
-			//molegameJNI.piezoWrite((char)0x00);
+			molegameJNI.piezoWrite((char)0x00);
 
 			Share.check = 0;
 			if(Share.fault == 8) Share.gameCount = -1;

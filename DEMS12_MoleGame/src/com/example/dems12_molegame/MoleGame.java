@@ -28,16 +28,16 @@ public class MoleGame extends Activity{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
+		//뷰 초기화
 		initView();
 		
+		//스타트 버튼눌렀을 경우
 		startbtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Share.name = edittext.getText().toString();
-				startbtn.setText("Playing..");
-				
 				Intent intent = new Intent(MoleGame.this, ButtonActivity.class);
-				startActivity(intent);
+				startActivity(intent);	//망치역할의 버튼액티비티를 띄움
 			}
 		});
 	}

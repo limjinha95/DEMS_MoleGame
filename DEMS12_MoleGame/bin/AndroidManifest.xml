@@ -4,6 +4,7 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
@@ -23,7 +24,7 @@
         </activity>
         <activity
             android:name="com.example.dems12_molegame.ButtonActivity"
-            android:label="asdfasdf" >
+            android:label="키패드" >
         </activity>
     </application>
 
