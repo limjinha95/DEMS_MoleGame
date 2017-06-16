@@ -27,15 +27,15 @@ public class MoleGame extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
+		
 		initView();
-
+		
 		startbtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Share.name = edittext.getText().toString();
 				startbtn.setText("Playing..");
-
+				
 				Intent intent = new Intent(MoleGame.this, ButtonActivity.class);
 				startActivity(intent);
 			}
